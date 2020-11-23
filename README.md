@@ -8,7 +8,7 @@ Orthogonalization".
 ```
 @article{saha2020LOHO,
   title={LOHO: Latent Optimization of Hairstyles via Orthogonalization},
-  author={Saha, Rohit and Duke, Brendan and Shkurti, Florian and Taylor, Graham, and Aarabi, Parham},
+  author={Saha, Rohit and Duke, Brendan and Shkurti, Florian and Taylor, Graham and Aarabi, Parham},
   journal={arXiv preprint arXiv:},
   year={2020}
 }
