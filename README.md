@@ -1,8 +1,6 @@
-# LOHO: Latent Optimization of Hairstyles via Orthogonalization
+# LOHO: Latent Optimization of Hairstyles via Orthogonalization [CVPR'21]
 
 ![Hairstyle transfer samples synthesized by LOHO.](imgs/teaser.jpeg "LOHO Teaser")
-
-#### LOHO accepted to CVPR'21 conference.
 
 This directory contains the code for running LOHO framework.
 
