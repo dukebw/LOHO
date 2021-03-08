@@ -1,3 +1,7 @@
+# LOHO: Latent Optimization of Hairstyles via Orthogonalization
+
+![Hairstyle transfer samples synthesized by LOHO.](imgs/teaser.jpeg "LOHO Teaser")
+
 This directory contains the code for running LOHO framework.
 
 The sub-folders are:
@@ -26,3 +30,15 @@ You can use the following specifications:
 3. python loho.py --image1 52364.jpg --image2 52364.jpg --image3 19501.jpg
 4. python loho.py --image1 17754.jpg --image2 17658.jpg --image3 00148.jpg
 5. python loho.py --image1 46826.jpg --image2 08244.jpg --image3 10446.jpg
+
+Please use the following citation:
+
+```
+ @article{saha2020LOHO,
+   title={LOHO: Latent Optimization of Hairstyles via Orthogonalization},
+   author={Saha, Rohit and Duke, Brendan and Shkurti, Florian and Taylor, Graham, and Aarabi, Parham},
+   journal={arXiv preprint arXiv:},
+   year={2020}
+ }
+ ```
+
