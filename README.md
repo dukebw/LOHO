@@ -33,7 +33,7 @@ You can use the following specifications:
 * **python loho.py --image1 17754.jpg --image2 17658.jpg --image3 00148.jpg**
 * **python loho.py --image1 46826.jpg --image2 08244.jpg --image3 10446.jpg**
 
-### Please use the following citation:
+#### To cite this paper, use the following: 
 
 ```
  @article{saha2020LOHO,
