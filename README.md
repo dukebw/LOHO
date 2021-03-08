@@ -5,16 +5,16 @@
 This directory contains the code for running LOHO framework.
 
 The sub-folders are:
-1. networks: Contains scripts for Graphonomy, VGG16 and StyleGANv2
-2. losses: Contains scripts for computing different losses
-3. datasets: Contains scripts for preparing the images and masks required to run LOHO
-4. data:
+* networks: Contains scripts for Graphonomy, VGG16 and StyleGANv2
+* losses: Contains scripts for computing different losses
+* datasets: Contains scripts for preparing the images and masks required to run LOHO
+* data:
 	1. images: Contains FFHQ images at 1024px
 	2. masks: Contains masks at 128px, extracted from Graphonomy, corresponding to the images
 	3. softmasks: Contains pickle files used to perform "soft-blending" as a post-processing step at 512px
 	4. backgrounds: Contains images at 256px with foreground inpainted 
 	5. results: Folders that store output files
-5. checkpoints: Folder to store checkpoints
+* checkpoints: Folder to store checkpoints
 
 In order to run LOHO, you have to download the necessary model checkpoints. We provide instructions to download checkpoints:
 1. Download the checkpoints for Graphonomy and StyleGANv2 from: https://drive.google.com/drive/folders/10goJlS18m9si3fBOmQKjszS2m9tfjfp7?usp=sharing
