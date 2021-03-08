@@ -2,9 +2,11 @@
 
 ![Hairstyle transfer samples synthesized by LOHO.](imgs/teaser.jpeg "LOHO Teaser")
 
+### LOHO accepted to Computer Vision and Pattern Recognition 2021 (CVPR'21).
+
 This directory contains the code for running LOHO framework.
 
-### The sub-folders are:
+The sub-folders are:
 * networks: Contains scripts for Graphonomy, VGG16 and StyleGANv2
 * losses: Contains scripts for computing different losses
 * datasets: Contains scripts for preparing the images and masks required to run LOHO
