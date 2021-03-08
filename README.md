@@ -2,7 +2,7 @@
 
 ![Hairstyle transfer samples synthesized by LOHO.](imgs/teaser.jpeg "LOHO Teaser")
 
-#### LOHO accepted to Computer Vision and Pattern Recognition 2021 (CVPR'21).
+#### LOHO accepted to CVPR'21 conference.
 
 This directory contains the code for running LOHO framework.
 
