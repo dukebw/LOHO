@@ -34,11 +34,10 @@ You can use the following specifications:
 #### To cite this paper, use the following: 
 
 ```
- @article{saha2020LOHO,
+ @inproceedings{saha2021LOHO,
    title={LOHO: Latent Optimization of Hairstyles via Orthogonalization},
    author={Saha, Rohit and Duke, Brendan and Shkurti, Florian and Taylor, Graham, and Aarabi, Parham},
-   journal={arXiv preprint arXiv:},
-   year={2020}
+   booktitle={CVPR},
+   year={2021}
  }
  ```
-
