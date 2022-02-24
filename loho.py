@@ -57,7 +57,9 @@ if __name__ == "__main__":
     parser.add_argument("--image2", type=str, default="00200.png")
     parser.add_argument("--image3", type=str, default="00079.png")
     parser.add_argument("--use_GO", type=int, default=1, help="Use GO or no-GO")
-    parser.add_argument("--style_mask_type", type=int, default=1, help="1.ori, 2.comp. mask")
+    parser.add_argument(
+        "--style_mask_type", type=int, default=1, help="1.ori, 2.comp. mask"
+    )
     parser.add_argument("--lpips_vgg_blocks", type=str, default="4,5")
     parser.add_argument("--style_vgg_layers", type=str, default="3,8,15,22")
     parser.add_argument("--appearance_vgg_layers", type=str, default="1")
@@ -80,29 +82,32 @@ if __name__ == "__main__":
     background = "data/backgrounds"
     softmask = "data/softmasks"
     input_name = (
-        args.image1.split(".")[0] + "_"
-        + args.image2.split(".")[0] + "_"
+        args.image1.split(".")[0]
+        + "_"
+        + args.image2.split(".")[0]
+        + "_"
         + args.image3.split(".")[0]
     )
     dest = os.path.join("data/results", input_name)
-    if not os.path.exists(dest): os.makedirs(dest)
-    styleganv2_ckpt_path = 'checkpoints/stylegan2-ffhq-config-f.pt'
-    graphonomy_model_path = 'checkpoints/inference.pth'
+    if not os.path.exists(dest):
+        os.makedirs(dest)
+    styleganv2_ckpt_path = "checkpoints/stylegan2-ffhq-config-f.pt"
+    graphonomy_model_path = "checkpoints/inference.pth"
 
     # Get path to image files
     image_files = image_utils.getImagePaths(
         raw, mask, background, args.image1, args.image2, args.image3
     )
 
-    # Get images and masks 
+    # Get images and masks
     I_1, M_1, HM_1, H_1, FM_1, F_1, FG_1 = process_image(
-        image_files['I_1_path'], image_files['M_1_path'], size=resize, normalize=1
+        image_files["I_1_path"], image_files["M_1_path"], size=resize, normalize=1
     )
     I_2, M_2, HM_2, H_2, FM_2, F_2, FG_2 = process_image(
-        image_files['I_2_path'], image_files['M_2_path'], size=resize, normalize=1
+        image_files["I_2_path"], image_files["M_2_path"], size=resize, normalize=1
     )
     I_3, M_3, HM_3, H_3, FM_3, F_3, FG_3 = process_image(
-        image_files['I_3_path'], image_files['M_3_path'], size=resize, normalize=1
+        image_files["I_3_path"], image_files["M_3_path"], size=resize, normalize=1
     )
 
     # Make cuda
@@ -123,11 +128,9 @@ if __name__ == "__main__":
     I_2, M_2, HM_2, H_2, FM_2, F_2, FG_2 = image_utils.addBatchDim(
         [I_2, M_2, HM_2, H_2, FM_2, F_2, FG_2]
     )
-    I_3, M_3, HM_3, H_3 = image_utils.addBatchDim(
-        [I_3, M_3, HM_3, H_3]
-    )
+    I_3, M_3, HM_3, H_3 = image_utils.addBatchDim([I_3, M_3, HM_3, H_3])
 
-    HM_2D, HM_2E = dilate_erosion_mask(image_files['M_2_path'], resize)
+    HM_2D, HM_2E = dilate_erosion_mask(image_files["M_2_path"], resize)
     HM_2D, HM_2E = HM_2D.float(), HM_2E.float()
     HM_2D, HM_2E = optimizer_utils.make_cuda([HM_2D, HM_2E])
     HM_2D, HM_2E = image_utils.addBatchDim([HM_2D, HM_2E])
@@ -137,33 +140,39 @@ if __name__ == "__main__":
     # Write masks to disk for visualization
     image_utils.writeMaskToDisk(
         [HM_1, HM_2, HM_2D, HM_2E, ignore_region],
-        ['HM_1.png', 'HM_2.png', 'HM_2D.png', 'HM_2E.png', 'ignore_region.png'],
-        dest
+        ["HM_1.png", "HM_2.png", "HM_2D.png", "HM_2E.png", "ignore_region.png"],
+        dest,
     )
     image_utils.writeImageToDisk(
-        [I_1.clone(), I_2.clone(), I_3.clone()], ['I_1.png', 'I_2.png', 'I_3.png'], dest
+        [I_1.clone(), I_2.clone(), I_3.clone()], ["I_1.png", "I_2.png", "I_3.png"], dest
     )
 
     ############################# LOAD MODELS
 
-    lpips_vgg_blocks = args.lpips_vgg_blocks.split(',')
+    lpips_vgg_blocks = args.lpips_vgg_blocks.split(",")
     # LPIPS MODEL
     face_percept = lpips.PerceptualLoss(
-        model="net-lin", net="vgg", vgg_blocks=["1", "2", "3", "4", "5"], use_gpu=device.startswith("cuda") 
+        model="net-lin",
+        net="vgg",
+        vgg_blocks=["1", "2", "3", "4", "5"],
+        use_gpu=device.startswith("cuda"),
     )
     hair_percept = lpips.PerceptualLoss(
-        model="net-lin", net="vgg", vgg_blocks=lpips_vgg_blocks, use_gpu=device.startswith("cuda")
+        model="net-lin",
+        net="vgg",
+        vgg_blocks=lpips_vgg_blocks,
+        use_gpu=device.startswith("cuda"),
     )
 
     # STYLE + APPEARANCE MODEL
-    style_vgg_layers = args.style_vgg_layers.split(',')
+    style_vgg_layers = args.style_vgg_layers.split(",")
     style_vgg_layers = [int(i) for i in style_vgg_layers]
     style = StyleLoss(
         distance="l2", VGG16_ACTIVATIONS_LIST=style_vgg_layers, normalize=False
     )
     style.cuda()
 
-    appearance_vgg_layers = args.appearance_vgg_layers.split(',')
+    appearance_vgg_layers = args.appearance_vgg_layers.split(",")
     appearance_vgg_layers = [int(i) for i in appearance_vgg_layers]
     appearance = AppearanceLoss(
         distance="l2", VGG16_ACTIVATIONS_LIST=appearance_vgg_layers, normalize=False
@@ -203,7 +212,7 @@ if __name__ == "__main__":
     latent_in = latent_mean.detach().clone().unsqueeze(0).repeat(I_1.shape[0], 1)
     # copy over to W+
     latent_in = latent_in.unsqueeze(1).repeat(1, g_ema.n_latent, 1)
-    
+
     latent_in.requires_grad = True
 
     for noise in noises:
@@ -300,7 +309,7 @@ if __name__ == "__main__":
         n_loss = args.noise_regularize * noise_regularize(noises)
         losses_log["noise"].append(n_loss.item())
 
-        loss = (facerec_loss + n_loss)
+        loss = facerec_loss + n_loss
 
         if i < 1000:
             loss += hairrec_loss
@@ -308,7 +317,7 @@ if __name__ == "__main__":
             loss.backward()
             optimizer.step()
         else:
-            loss += (hairstyle_3g_loss + hairappearance_3g_loss)
+            loss += hairstyle_3g_loss + hairappearance_3g_loss
 
             if args.use_GO == 0:
                 optimizer.zero_grad()
@@ -318,12 +327,12 @@ if __name__ == "__main__":
             else:
                 # Accumulate gradients from losses that do not participate in projection loss
                 # NOTE: Use clone to get .grad since it is referencing memory location
-                
+
                 optimizer.zero_grad()
                 loss.backward(retain_graph=True)
                 simple_L = latent_in.grad.clone()
                 simple_noises = [n.grad.clone() for n in noises]
-                
+
                 # Get gradient g_L
                 optimizer.zero_grad()
                 hairrec_loss.backward(retain_graph=True)
@@ -344,12 +353,14 @@ if __name__ == "__main__":
                 # Compute gradient orthogonalization
                 # g_L, g_S_2  are [1, 18, 512] matrices
                 # <g_L, g_S_2 + > will do dot between <g_L[1, i, 512], g_S_2[1, i, 512]>
-                
+
                 # The following code does <g_L, g_S_2> / <g_S_2, g_S_2>
                 norm_vector = []
                 for w_pos in range(len(g_L[0])):
                     g_S2_hat = F.normalize(g_S2[0, w_pos, :].unsqueeze(0), p=2)
-                    dot_L_S2 = torch.dot(g_L[0, w_pos, :], g_S2_hat.squeeze()) * g_S2_hat
+                    dot_L_S2 = (
+                        torch.dot(g_L[0, w_pos, :], g_S2_hat.squeeze()) * g_S2_hat
+                    )
                     norm_vector.append(dot_L_S2)
 
                 norm_vector = torch.stack(norm_vector)  # [18 x 1 x 512]
@@ -407,13 +418,11 @@ if __name__ == "__main__":
         )
 
         if (i + 1) % args.save_synth_every == 0:
-            image_utils.writeImageToDisk(
-                [I_G.clone()], [f'synth-{str(i)}.png'], dest
-            )
+            image_utils.writeImageToDisk([I_G.clone()], [f"synth-{str(i)}.png"], dest)
             image_utils.writeMaskToDisk(
                 [HM_G, FM_G],
-                [f'synth_hair_mask-{str(i)}.png', f'synth_face_mask-{str(i)}.png'],
-                dest
+                [f"synth_hair_mask-{str(i)}.png", f"synth_face_mask-{str(i)}.png"],
+                dest,
             )
 
     img_gen, _ = g_ema([latent_path[-1]], input_is_latent=True, noise=noises)
@@ -424,29 +433,46 @@ if __name__ == "__main__":
 
     if args.save_pickle:
         image_utils.writePickleToDisk(
-            [latent_in[0], noise_single, losses_log, g_S2_vector_norms,
-                g_S3_vector_norms, g_L_vector_norms, g_L_hat_vector_norms,
-                dot_gL_gS2, dot_gLhat_gS2],
-            ["w_latent.pkl", "noises.pkl", "losses.pkl", "g_S2_vector_norms.pkl",
-                "g_S3_vector_norms.pkl", "g_L_vector_norms.pkl", "g_L_hat_vector_norms.pkl",
-                "dot_gL_gS2.pkl", "dot_gLhat_gS2.pkl"],
-            dest
+            [
+                latent_in[0],
+                noise_single,
+                losses_log,
+                g_S2_vector_norms,
+                g_S3_vector_norms,
+                g_L_vector_norms,
+                g_L_hat_vector_norms,
+                dot_gL_gS2,
+                dot_gLhat_gS2,
+            ],
+            [
+                "w_latent.pkl",
+                "noises.pkl",
+                "losses.pkl",
+                "g_S2_vector_norms.pkl",
+                "g_S3_vector_norms.pkl",
+                "g_L_vector_norms.pkl",
+                "g_L_hat_vector_norms.pkl",
+                "dot_gL_gS2.pkl",
+                "dot_gLhat_gS2.pkl",
+            ],
+            dest,
         )
 
     ########### INPAINT BACKGROUND
 
     # Get softmask
-    with open(os.path.join(softmask, args.image1.split('.')[0] + '.pkl'), 'rb') as handle:
+    with open(
+        os.path.join(softmask, args.image1.split(".")[0] + ".pkl"), "rb"
+    ) as handle:
         softmask = pickle.load(handle)
 
     # Get inpainted background
     background = cv2.imread(os.path.join(background, args.image1))
     background = cv2.resize(background, (512, 512))
 
-    img_gen = image_utils.makeImage(img_gen)[0] # in RGB
+    img_gen = image_utils.makeImage(img_gen)[0]  # in RGB
     img_gen = cv2.cvtColor(cv2.resize(img_gen, (512, 512)), cv2.COLOR_BGR2RGB)
 
     result = (softmask * img_gen) + (1 - softmask) * background
     result = result.astype(np.uint8)
-    cv2.imwrite(os.path.join(dest, 'result.png'), result)
-
+    cv2.imwrite(os.path.join(dest, "result.png"), result)

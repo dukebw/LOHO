@@ -15,7 +15,7 @@ from torch.utils.data import DataLoader
 
 
 def load_train_dataloader():
-    raw_dataset = FFHQ(BASE_DIR='/home/ubuntu/')
+    raw_dataset = FFHQ(BASE_DIR="/home/ubuntu/")
     dataset = DataLoader(
         raw_dataset,
         batch_size=1,

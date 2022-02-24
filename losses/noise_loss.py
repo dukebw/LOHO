@@ -1,5 +1,6 @@
 import torch
 
+
 def noise_regularize(noises):
     loss = 0
 
@@ -29,5 +30,3 @@ def noise_normalize_(noises):
         std = noise.std()
 
         noise.data.add_(-mean).div_(std)
-
-

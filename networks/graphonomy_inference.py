@@ -169,7 +169,7 @@ def inference(net, img=None, use_gpu=True):
 
     # multi-scale
     scale_list = [1, 0.5, 0.75, 1.25, 1.5, 1.75]
-    #scale_list = [1, 0.5, 0.75, 1.25]
+    # scale_list = [1, 0.5, 0.75, 1.25]
     # NOTE: this part of the code assumes img is PIL image in RGB color space
     # We provide torch tensor in range [-1, 1]
     # Bring range to [0, 255]

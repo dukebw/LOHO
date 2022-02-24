@@ -44,19 +44,20 @@ class AppearanceLoss(nn.Module):
             if mask1 is not None:
                 feat_x, mask_x = self.mask_features(act_x[layer], mask1)
                 on_pixels = torch.sum(mask_x[0, 0, ...])
-                appearance_x = torch.sum(feat_x, axis=[2, 3]) / (on_pixels + 1e-8) 
+                appearance_x = torch.sum(feat_x, axis=[2, 3]) / (on_pixels + 1e-8)
             else:
-                feat_x  = act_x[layer]
+                feat_x = act_x[layer]
                 appearance_x = torch.mean(feat_x, axis=[2, 3])
 
             if mask2 is not None:
                 feat_x_hat, mask_x_hat = self.mask_features(act_x_hat[layer], mask2)
                 on_pixels = torch.sum(mask_x_hat[0, 0, ...])
-                appearance_x_hat = torch.sum(feat_x_hat, axis=[2, 3]) / (on_pixels + 1e-8)
+                appearance_x_hat = torch.sum(feat_x_hat, axis=[2, 3]) / (
+                    on_pixels + 1e-8
+                )
             else:
                 feat_x_hat = act_x_hat[layer]
                 appearance_x_hat = torch.mean(feat_x_hat, axis=[2, 3])
-
 
             # compute layer wise loss and aggregate
             loss += custom_loss(
@@ -67,7 +68,7 @@ class AppearanceLoss(nn.Module):
                 include_bkgd=True,
             )
 
-        loss = loss / len(act_x) 
+        loss = loss / len(act_x)
 
         return loss
 

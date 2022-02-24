@@ -5,21 +5,22 @@ import pickle
 import os
 from PIL import Image
 
-def getImagePaths(raw, mask, background,  image1, image2, image3):
+
+def getImagePaths(raw, mask, background, image1, image2, image3):
     I_1_path = os.path.join(raw, image1)
-    M_1_path = os.path.join(mask, image1.split('.')[0] + '.png')
+    M_1_path = os.path.join(mask, image1.split(".")[0] + ".png")
     I_2_path = os.path.join(raw, image2)
-    M_2_path = os.path.join(mask, image2.split('.')[0] + '.png')
+    M_2_path = os.path.join(mask, image2.split(".")[0] + ".png")
     I_3_path = os.path.join(raw, image3)
-    M_3_path = os.path.join(mask, image3.split('.')[0] + '.png')
+    M_3_path = os.path.join(mask, image3.split(".")[0] + ".png")
 
     return {
-        'I_1_path': I_1_path,
-        'I_2_path': I_2_path,
-        'I_3_path': I_3_path,
-        'M_1_path': M_1_path,
-        'M_2_path': M_2_path,
-        'M_3_path': M_3_path,
+        "I_1_path": I_1_path,
+        "I_2_path": I_2_path,
+        "I_3_path": I_3_path,
+        "M_1_path": M_1_path,
+        "M_2_path": M_2_path,
+        "M_3_path": M_3_path,
     }
 
 
@@ -74,12 +75,8 @@ def makeImage(tensor):
         .numpy()
     )
 
+
 def writePickleToDisk(li, names, dest):
     for idx, var in enumerate(li):
         with open(os.path.join(dest, names[idx]), "wb") as handle:
-            pickle.dump(
-                li[idx].detach().cpu().numpy(),
-                handle
-            )
-
-
+            pickle.dump(li[idx].detach().cpu().numpy(), handle)
