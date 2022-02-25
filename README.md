@@ -31,6 +31,24 @@ You can use the following specifications:
 * **python loho.py --image1 17754.jpg --image2 17658.jpg --image3 00148.jpg**
 * **python loho.py --image1 46826.jpg --image2 08244.jpg --image3 10446.jpg**
 
+
+## StyleGANv2 Inversion
+
+The script `styleganv2_inversion.py` contains CLI tools to perform simple
+StyleGANv2 inversion.
+
+To invert an image and save the resulting W-space and noise latent tensors:
+```
+python stylegan2_inversion.py gan-invert --image-path ./data/images/00018.jpg --save-pickle
+```
+
+To synthesize an image from saved W-space and noise latent tensors:
+```
+python stylegan2_inversion.py reconstruct-from-latent
+```
+
+
+
 #### To cite this paper, use the following: 
 
 ```

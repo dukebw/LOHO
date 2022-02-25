@@ -1,0 +1,14 @@
+boto3
+click
+dill
+dominate
+matplotlib
+mlflow
+opencv
+python-lmdb
+scikit-image
+scipy
+tensorboard
+tensorboardx
+torchsummary
+tqdm
