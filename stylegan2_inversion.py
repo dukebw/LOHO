@@ -1,6 +1,7 @@
 """CLI for inverting images into StyleGANv2's latent space"""
 import os
 import pickle
+from pathlib import Path
 
 import click
 import torch
@@ -95,6 +96,12 @@ def _setup_styleganv2(gan_output_size: int, styleganv2_ckpt_path: str):
     type=str,
     help="Path to pretrained StyleGANv2 weights",
 )
+@click.option(
+    "--optimize-extended-w-space/--no-optimize-extended-w-space",
+    default=True,
+    type=bool,
+    help="Optimize W+ space? If False optimizes W space",
+)
 def gan_invert(
     gan_output_size: int,
     image_path: str,
@@ -109,6 +116,7 @@ def gan_invert(
     save_pickle: bool,
     save_synth_every: int,
     styleganv2_ckpt_path: str,
+    optimize_extended_w_space: bool,
 ):
     """Invert image to latent"""
     os.makedirs(output_dir, exist_ok=True)
@@ -142,7 +150,9 @@ def gan_invert(
         noises.append(noise.repeat(input_img.shape[0], 1, 1, 1).normal_())
 
     latent_in = latent_mean.detach().clone().unsqueeze(0).repeat(input_img.shape[0], 1)
-    latent_in = latent_in.unsqueeze(1).repeat(1, styleganv2_gen.n_latent, 1)
+    latent_in = latent_in.unsqueeze(1)
+    if optimize_extended_w_space:
+        latent_in = latent_in.repeat(1, styleganv2_gen.n_latent, 1)
 
     latent_in.requires_grad = True
 
@@ -157,12 +167,17 @@ def gan_invert(
         step_fraction = step_i / n_steps
         optimizer.param_groups[0]["lr"] = get_lr(step_fraction, initial_learning_rate)
 
+        if not optimize_extended_w_space:
+            latent_repeated = latent_in.repeat(1, styleganv2_gen.n_latent, 1)
+        else:
+            latent_repeated = latent_in
+
         noise_strength = (
             latent_std
             * noise_strength_coeff
             * max(0, 1 - (step_fraction / noise_ramp)) ** 2
         )
-        latent_n = latent_noise(latent_in, noise_strength.item())
+        latent_n = latent_noise(latent_repeated, noise_strength.item())
 
         synth_img, _ = styleganv2_gen([latent_n], input_is_latent=True, noise=noises)
 
@@ -207,6 +222,66 @@ def gan_invert(
                 ):
                     with open(os.path.join(output_dir, name), "wb") as filestream:
                         pickle.dump(tensor, filestream)
+
+
+@cli.command()
+@click.option(
+    "--input-dir",
+    required=True,
+    type=str,
+    help="Directory of images to invert",
+)
+@click.option(
+    "--n-steps",
+    default=2000,
+    type=int,
+    help="Number of optimization steps",
+)
+@click.option(
+    "--optimize-extended-w-space/--no-optimize-extended-w-space",
+    default=True,
+    type=bool,
+    help="Optimize W+ space? If False optimizes W space",
+)
+@click.option(
+    "--output-dir",
+    required=True,
+    type=str,
+    help="Directory to output inverted latent and reconstructed image to",
+)
+@click.option(
+    "--save-pickle/--no-save-pickle",
+    default=False,
+    type=bool,
+    help="Save pickles of latents, noises, and losses?",
+)
+@click.option(
+    "--save-synth-every",
+    default=500,
+    type=int,
+    help="Save synthesized image every N steps",
+)
+@click.pass_context
+def invert_directory(
+    ctx: click.Context,
+    input_dir: str,
+    n_steps: int,
+    optimize_extended_w_space: bool,
+    output_dir: str,
+    save_pickle: bool,
+    save_synth_every: int,
+):
+    """Invert entire directory of images"""
+    for img_name in os.listdir(input_dir):
+        ctx.invoke(
+            gan_invert,
+            image_path=os.path.join(input_dir, img_name),
+            n_steps=n_steps,
+            optimize_extended_w_space=optimize_extended_w_space,
+            output_dir=os.path.join(output_dir, Path(img_name).stem),
+            save_pickle=save_pickle,
+            save_synth_every=save_synth_every,
+        )
 
 
 def _load_pickle(pickled_path):
@@ -262,6 +337,11 @@ def reconstruct_from_latent(
     w_latent = torch.from_numpy(w_latent).cuda()
     noises = _load_pickle(noises_latent_path)
     noises = [torch.from_numpy(n).cuda() for n in noises]
+
+    # NOTE(brendan): in case w_latent is from the W space not the extended W+
+    # space, repeat it
+    if w_latent.shape[1] == 1:
+        w_latent = w_latent.repeat(1, styleganv2_gen.n_latent, 1)
 
     synth_img, _ = styleganv2_gen([w_latent], input_is_latent=True, noise=noises)
     image_utils.writeImageToDisk([synth_img.clone()], ["reconstructed.png"], output_dir)
